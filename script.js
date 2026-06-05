@@ -27,7 +27,7 @@ function systemApp() {
     },
 
     generateThaiDate() {
-      const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+      const months = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
       const d = new Date();
       this.thaiDateNow = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear() + 543}`;
     },
