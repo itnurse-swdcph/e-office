@@ -289,20 +289,30 @@
 
               <form @submit.prevent="openConfirmation">
                 <div class="row g-3">
-                  <div class="col-md-6">
-                    <label class="form-label fw-medium">กลุ่มงานหลัก <span class="text-danger">*</span></label>
-                    <select class="form-select" x-model="form.group" @change="handleGroupChange" required>
-                      <option value="">-- เลือกกลุ่มงาน --</option>
-                      <template x-for="g in meta.groups">
+                  <div class="col-md-4">
+                    <label class="form-label fw-medium">ภารกิจ <span class="text-danger">*</span></label>
+                    <select class="form-select" x-model="form.mission" @change="handleMissionChange" required>
+                      <option value="">-- เลือกภารกิจ --</option>
+                      <template x-for="m in meta.missions">
+                        <option :value="m[0]" x-text="m[0]"></option>
+                      </template>
+                    </select>
+                  </div>
+
+                  <div class="col-md-4">
+                    <label class="form-label fw-medium">กลุ่มงาน</label>
+                    <select class="form-select" x-model="form.group" @change="handleGroupChange" :disabled="!form.mission">
+                      <option value="">-- ออกในนามภารกิจ (ไม่ระบุกลุ่มงาน) --</option>
+                      <template x-for="g in filteredGroups">
                         <option :value="g[0]" x-text="g[0]"></option>
                       </template>
                     </select>
                   </div>
 
-                  <div class="col-md-6">
+                  <div class="col-md-4">
                     <label class="form-label fw-medium">หน่วยงาน</label>
                     <select class="form-select" x-model="form.unit" @change="handleUnitChange" :disabled="!form.group">
-                      <option value="">-- ออกในนามกลุ่มงานหลัก (ไม่ระบุหน่วยงาน) --</option>
+                      <option value="">-- ออกในนามกลุ่มงาน (ไม่ระบุหน่วยงาน) --</option>
                       <template x-for="u in filteredUnits">
                         <option :value="u[0]" x-text="u[0]"></option>
                       </template>
