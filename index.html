@@ -388,32 +388,40 @@
             <table class="table table-striped table-hover align-middle m-0" style="font-size:0.92rem;" id="register-table-data">
               <thead class="table-dark-custom text-white">
                 <tr>
-                  <th style="width: 15%">เลขที่หนังสือ</th>
+                  <th style="width: 15%">เลขที่หนังสือ/ลงวันที่</th>
                   <th style="width: 13%">ประเภท</th>
                   <th style="width: 35%">เรื่อง / ส่งถึง</th>
                   <th style="width: 20%">หน่วยงาน / กลุ่มงาน</th>
-                  <th style="width: 17%">ผู้ปฏิบัติ / ลงวันที่</th>
+                  <th style="width: 17%">ผู้ปฏิบัติ / วันที่ลงทะเบียน</th>
                 </tr>
               </thead>
               <tbody>
                 <template x-for="row in filteredRecords">
                   <tr>
-                    <td><span class="badge badge-doc-num font-monospace" x-text="row.docNum"></span></td>
+                    <td>
+                      <span class="badge badge-doc-num font-monospace" x-text="row.docNum"></span>
+                      <div class="small text-muted mt-1" x-text="formatThaiDate(row.DocumentDate)"></div>
+                    </td>
+                    
                     <td class="fw-medium text-secondary" x-text="row.type"></td>
+                    
                     <td>
                       <div class="fw-bold text-dark" x-text="row.subject"></div>
                       <div class="small text-muted" x-text="'ส่งถึง: ' + row.recipient"></div>
                     </td>
+                    
                     <td>
                       <div class="fw-semibold text-primary" x-text="row.unit"></div>
                       <div class="text-muted" style="font-size:0.75rem;" x-text="row.group"></div>
                     </td>
+                    
                     <td>
                       <div class="fw-medium text-dark" x-text="row.requester"></div>
-                      <div class="text-muted" style="font-size:0.78rem;" x-text="'ลงวัน: ' + row.docDate"></div>
+                      <div class="text-muted" style="font-size:0.78rem;" x-text="formatThaiDate(row.DateSentThai)"></div>
                     </td>
                   </tr>
                 </template>
+                
                 <tr x-show="filteredRecords.length === 0">
                   <td colspan="5" class="text-center text-muted py-5">ไม่พบข้อมูลทะเบียนจองในฐานข้อมูลตามตัวกรองที่ระบุ</td>
                 </tr>
