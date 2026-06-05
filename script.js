@@ -1,5 +1,5 @@
 // ************************************************************************
-// ⚠️ เปลี่ยนเป็น URL เว็บแอปพลิเคชันที่ครูได้ทำการคัดลอกมาจาก Google Apps Script
+// ⚠️ เปลี่ยนเป็น URL เว็บแอปพลิเคชันที่ได้ทำการคัดลอกมาจาก Google Apps Script
 const API_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwYNit-n6pgzD8B2XmSJJx3Ey_cdJnYSMKI3UXxVjN9jAF3-vlAwyNL-jxIjgRZLgMYog/exec';
 // ************************************************************************
 
@@ -7,7 +7,7 @@ function systemApp() {
   return {
     view: 'dashboard',
     loading: true,
-    sidebarCollapse: false, // เพิ่มตัวแปรควบคุมสถานะ ย่อ-ขยาย แถบเมนูด้านข้าง
+    sidebarCollapse: false, // ตัวแปรควบคุมสถานะ ย่อ-ขยาย แถบเมนูด้านข้าง
     thaiDateNow: '',
     searchQuery: '',
     filterType: '',
@@ -16,7 +16,6 @@ function systemApp() {
     filteredUnits: [],
     records: [],
     stats: { totalBooks: 0, booksByType: {}, topRequesters: [], latestBookings: {} },
-    // แก้ไข: ตัดฟิลด์ userEmail ออกเรียบร้อยแล้ว
     form: { group: '', unit: '', documentType: '', prefix: '', documentDate: '', recipient: '', subject: '', requester: '', remarks: '' },
 
     async init() {
@@ -24,6 +23,29 @@ function systemApp() {
       await this.loadMeta();
       await this.loadDashboard();
       this.loading = false;
+    },
+
+    // 🌟 เพิ่มฟังก์ชันสำหรับแปลงวันที่ ISO (เช่น 2569-06-03T17:00...) เป็นวันที่ไทย
+    formatThaiDate(dateInput) {
+      if (!dateInput) return '-';
+      
+      try {
+        const date = new Date(dateInput);
+        if (isNaN(date.getTime())) return dateInput; 
+        
+        const day = date.getDate();
+        const monthShort = date.toLocaleDateString('th-TH', { month: 'short' });
+        let year = date.getFullYear();
+        
+        // ตรวจสอบปี ค.ศ. แปลงเป็น พ.ศ.
+        if (year < 2500) {
+          year = year + 543;
+        }
+        
+        return `${day} ${monthShort} ${year}`;
+      } catch (e) {
+        return dateInput;
+      }
     },
 
     generateThaiDate() {
@@ -95,7 +117,7 @@ function systemApp() {
       }
     },
 
-    // แสดง Pop Up ตรวจสอบเงื่อนไขการจองก่อนบันทึก (ปรับตามรูปแบบใหม่)
+    // แสดง Pop Up ตรวจสอบเงื่อนไขการจองก่อนบันทึก
     openConfirmation() {
       const activeUnitDisplay = this.form.unit || 'ออกในนามกลุ่มงานหลัก';
       
@@ -123,7 +145,7 @@ function systemApp() {
       });
     },
 
-    // ส่งข้อมูลงฐานและแสดงผลลัพธ์เลขหนังสือในสไตล์ประโยคที่คุณระบุ
+    // ส่งข้อมูลลงฐานและแสดงผลลัพธ์เลขหนังสือ
     async executeBooking() {
       this.loading = true;
       try {
@@ -172,14 +194,14 @@ function systemApp() {
     get filteredRecords() {
       return this.records.filter(r => {
         const matchesSearch = !this.searchQuery || 
-          r.docNum.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-          r.subject.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-          r.requester.toLowerCase().includes(this.searchQuery.toLowerCase());
+          (r.docNum && r.docNum.toLowerCase().includes(this.searchQuery.toLowerCase())) ||
+          (r.subject && r.subject.toLowerCase().includes(this.searchQuery.toLowerCase())) ||
+          (r.requester && r.requester.toLowerCase().includes(this.searchQuery.toLowerCase()));
           
         const matchesType = !this.filterType || r.type === this.filterType;
         const matchesUnit = !this.filterUnit || 
-          r.unit.toLowerCase().includes(this.filterUnit.toLowerCase()) ||
-          r.group.toLowerCase().includes(this.filterUnit.toLowerCase());
+          (r.unit && r.unit.toLowerCase().includes(this.filterUnit.toLowerCase())) ||
+          (r.group && r.group.toLowerCase().includes(this.filterUnit.toLowerCase()));
           
         return matchesSearch && matchesType && matchesUnit;
       });
