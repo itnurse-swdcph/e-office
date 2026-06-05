@@ -325,8 +325,17 @@
                   </div>
 
                   <div class="col-12">
-                    <label class="form-label fw-medium">ลงวันที่ในเอกสาร <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" placeholder="เช่น 5 มิถุนายน 2569" x-model="form.documentDate" required>
+                    <label class="form-label fw-bold">ลงวันที่ในเอกสาร <span class="text-danger">*</span></label>
+                      <input type="date" 
+                             class="form-control" 
+                             x-model="form.documentDate" 
+                             required 
+                             onkeydown="return false" 
+                             onpaste="return false" 
+                             style="cursor: pointer;">
+                      <div class="form-text text-danger" style="font-size: 0.8rem;">
+                        <i class="fa-solid fa-circle-exclamation"></i> กรุณากดเลือกจากไอคอนปฏิทินเท่านั้น
+                      </div>
                   </div>
 
                   <div class="col-12">
