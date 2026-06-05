@@ -1,0 +1,16 @@
+{
+  "short_name": "จองเลขเอกสาร",
+  "name": "ระบบจองเลขเอกสารภารกิจด้านการพยาบาล รพ.สมเด็จพระยุพราชสว่างแดนดิน",
+  "icons": [
+    {
+      "src": "nurselogo.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#1e3a8a",
+  "theme-color": "#1e3a8a",
+  "display": "standalone",
+  "orientation": "portrait"
+}
