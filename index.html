@@ -115,8 +115,13 @@
           <img src="nurselogo.png" alt="Logo" class="logo-nav me-2" style="height: 35px;">
           <span class="fw-bold text-white">เมนูสารบรรณ</span>
         </div>
+        
         <button type="button" @click="sidebarCollapse = !sidebarCollapse" class="btn text-white d-none d-lg-block p-0">
           <i class="fa-solid fa-bars fa-lg"></i>
+        </button>
+        
+        <button type="button" @click="sidebarCollapse = !sidebarCollapse" class="btn text-white d-lg-none p-0">
+          <i class="fa-solid fa-xmark fa-xl"></i>
         </button>
       </div>
 
