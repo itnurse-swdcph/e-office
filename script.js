@@ -7,6 +7,7 @@ function systemApp() {
   return {
     view: 'dashboard',
     loading: true,
+    sidebarCollapse: false, // เพิ่มตัวแปรควบคุมสถานะ ย่อ-ขยาย แถบเมนูด้านข้าง
     thaiDateNow: '',
     searchQuery: '',
     filterType: '',
@@ -15,7 +16,8 @@ function systemApp() {
     filteredUnits: [],
     records: [],
     stats: { totalBooks: 0, booksByType: {}, topRequesters: [], latestBookings: {} },
-    form: { group: '', unit: '', documentType: '', prefix: '', documentDate: '', recipient: '', subject: '', requester: '', remarks: '', userEmail: '' },
+    // แก้ไข: ตัดฟิลด์ userEmail ออกเรียบร้อยแล้ว
+    form: { group: '', unit: '', documentType: '', prefix: '', documentDate: '', recipient: '', subject: '', requester: '', remarks: '' },
 
     async init() {
       this.generateThaiDate();
@@ -93,28 +95,26 @@ function systemApp() {
       }
     },
 
-    // แสดง Pop Up ตรวจสอบเงื่อนไขตามข้อกำหนด (SweetAlert2)
+    // แสดง Pop Up ตรวจสอบเงื่อนไขการจองก่อนบันทึก (ปรับตามรูปแบบใหม่)
     openConfirmation() {
       const activeUnitDisplay = this.form.unit || 'ออกในนามกลุ่มงานหลัก';
       
       Swal.fire({
-        title: '🔒 ตรวจสอบความถูกต้อง',
+        title: '📝 ยืนยันการจองเลขเอกสาร',
         html: `
-          <div class="text-start fs-6 p-2 bg-light border rounded">
+          <div class="text-start fs-6 p-3 bg-light border rounded">
             <p class="mb-1"><b>ประเภทหนังสือ:</b> ${this.form.documentType}</p>
             <p class="mb-1"><b>กลุ่มงาน:</b> ${this.form.group}</p>
             <p class="mb-1"><b>หน่วยงาน:</b> ${activeUnitDisplay}</p>
-            <p class="mb-1 text-primary"><b>รหัสนำเอกสาร:</b> ${this.form.prefix}XXXXX</p>
-            <p class="mb-1"><b>เรื่อง:</b> ${this.form.subject}</p>
+            <p class="mb-1 text-primary"><b>เรื่อง:</b> ${this.form.subject}</p>
             <p class="mb-0"><b>ลงวันที่ในหนังสือ:</b> ${this.form.documentDate}</p>
           </div>
-          <p class="mt-3 text-danger small">*เมื่อกดยืนยัน ระบบจะล็อกคิวและประมวลผลออกเลขทันที</p>
         `,
         icon: 'info',
         showCancelButton: true,
         confirmButtonColor: '#2563eb',
         cancelButtonColor: '#64748b',
-        confirmButtonText: 'ยืนยันและออกเลขเอกสาร',
+        confirmButtonText: 'กดยืนยัน',
         cancelButtonText: 'แก้ไขข้อมูล'
       }).then((result) => {
         if (result.isConfirmed) {
@@ -123,10 +123,10 @@ function systemApp() {
       });
     },
 
+    // ส่งข้อมูลงฐานและแสดงผลลัพธ์เลขหนังสือในสไตล์ประโยคที่คุณระบุ
     async executeBooking() {
       this.loading = true;
       try {
-        // ส่งข้อความดิบ (text/plain) เพื่อเลี่ยงการติดบล็อก CORS Preflight ของฝั่งสคริปต์เซิร์ฟเวอร์
         const response = await fetch(API_ENDPOINT, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -138,24 +138,24 @@ function systemApp() {
         
         if(res.success) {
           Swal.fire({
-            title: '🎉 จองเลขเอกสารสำเร็จ!',
+            title: 'จองเลขที่หนังสือสำเร็จ!',
             html: `
-              <div class="alert alert-success py-3 my-2">
-                <span class="small d-block text-muted">เลขที่หนังสือของคุณคือ</span>
-                <h2 class="fw-bold tracking-wide text-dark m-0 mt-1">${res.documentNumber}</h2>
-              </div>
-              <div class="text-start mt-2 px-1 small">
-                <b>ประเภท:</b> ${res.documentType}<br>
-                <b>กลุ่มงาน:</b> ${res.group}<br>
-                <b>หน่วยงาน:</b> ${res.unit}<br>
-                <b>ลงวันที่:</b> ${res.documentDate}
+              <div class="text-start p-3 bg-light border rounded" style="font-size: 0.95rem;">
+                <p class="mb-1"><b>ประเภท:</b> ${res.documentType}</p>
+                <p class="mb-1"><b>หน่วยงาน:</b> ${res.unit}</p>
+                <p class="mb-1"><b>กลุ่มงาน:</b> ${res.group}</p>
+                <p class="mb-1"><b>เรื่อง:</b> ${this.form.subject}</p>
+                <hr class="my-2">
+                <p class="mb-1 text-center fs-5 text-success fw-bold">เลขที่หนังสือของคุณคือ</p>
+                <p class="text-center fs-3 fw-bold text-dark font-monospace mb-2">${res.documentNumber}</p>
+                <p class="mb-0 text-center text-muted">ลงวันที่ ${res.documentDate}</p>
               </div>
             `,
             icon: 'success',
-            confirmButtonText: 'ตกลง รับทราบ'
+            confirmButtonText: 'ตกลง'
           });
           
-          // ล้างค่าฟอร์มเฉพาะส่วนที่จำเป็นเพื่อความสะดวกในการจองรอบถัดไป
+          // ล้างค่าฟอร์มเฉพาะส่วนแปรผันเพื่อความสะดวกในการรันงานเล่มถัดไป
           this.form.subject = '';
           this.form.recipient = '';
           this.form.remarks = '';
@@ -194,7 +194,7 @@ function systemApp() {
     },
 
     exportPDF() {
-      window.print(); // ใช้ฟังก์ชัน Native Print Engine ร่วมกับ CSS @media print ที่ออกแบบไว้
+      window.print();
     }
   }
 }
