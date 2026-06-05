@@ -47,6 +47,29 @@ function systemApp() {
         return dateInput;
       }
     },
+    // 🌟 ฟังก์ชันสำหรับแสดงตัวอย่างวันที่ในฟอร์ม (แสดงชื่อเดือนแบบเต็ม)
+    formatThaiDateFull(dateInput) {
+      if (!dateInput) return '';
+      
+      try {
+        const date = new Date(dateInput);
+        if (isNaN(date.getTime())) return '';
+        
+        const monthsFull = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+        
+        const day = date.getDate();
+        const monthFull = monthsFull[date.getMonth()];
+        let year = date.getFullYear();
+        
+        if (year < 2500) {
+          year = year + 543;
+        }
+        
+        return `${day} ${monthFull} ${year}`;
+      } catch (e) {
+        return '';
+      }
+    },
 
     generateThaiDate() {
       const months = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
