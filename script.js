@@ -12,11 +12,16 @@ function systemApp() {
     searchQuery: '',
     filterType: '',
     filterUnit: '',
-    meta: { groups: [], units: [], types: [] },
+    
+    // โครงสร้างข้อมูล 3 ระดับ (ภารกิจ -> กลุ่มงาน -> หน่วยงาน)
+    meta: { missions: [], groups: [], units: [], types: [] },
+    filteredGroups: [],
     filteredUnits: [],
     records: [],
     stats: { totalBooks: 0, booksByType: {}, topRequesters: [], latestBookings: {} },
-    form: { group: '', unit: '', documentType: '', prefix: '', documentDate: '', recipient: '', subject: '', requester: '', remarks: '' },
+    
+    // ฟอร์มข้อมูล (เพิ่ม mission เข้ามา)
+    form: { mission: '', group: '', unit: '', documentType: '', prefix: '', documentDate: '', recipient: '', subject: '', requester: '', remarks: '' },
 
     async init() {
       this.generateThaiDate();
@@ -25,7 +30,7 @@ function systemApp() {
       this.loading = false;
     },
 
-    // 🌟 เพิ่มฟังก์ชันสำหรับแปลงวันที่ ISO (เช่น 2569-06-03T17:00...) เป็นวันที่ไทย
+    // 🌟 ฟังก์ชันสำหรับแปลงวันที่ ISO (เช่น 2569-06-03T17:00...) เป็นวันที่ไทย
     formatThaiDate(dateInput) {
       if (!dateInput) return '-';
       
@@ -47,6 +52,7 @@ function systemApp() {
         return dateInput;
       }
     },
+
     // 🌟 ฟังก์ชันสำหรับแสดงตัวอย่างวันที่ในฟอร์ม (แสดงชื่อเดือนแบบเต็ม)
     formatThaiDateFull(dateInput) {
       if (!dateInput) return '';
@@ -120,9 +126,27 @@ function systemApp() {
       }
     },
 
-    handleGroupChange() {
-      const matched = this.meta.groups.find(g => g[0] === this.form.group);
+    // 🌟 ระบบจัดการเลือก 3 ระดับ (ภารกิจ -> กลุ่มงาน -> หน่วยงาน)
+    handleMissionChange() {
+      const matched = this.meta.missions.find(m => m[0] === this.form.mission);
       this.form.prefix = matched ? matched[1] : '';
+      
+      // กรองกลุ่มงานภายใต้ภารกิจ
+      this.filteredGroups = this.meta.groups.filter(g => g[1] === this.form.mission);
+      
+      // รีเซ็ตค่าระดับล่างลงมา
+      this.form.group = ''; 
+      this.filteredUnits = [];
+      this.form.unit = ''; 
+    },
+
+    handleGroupChange() {
+      if(this.form.group === "") {
+        this.handleMissionChange(); // กลับไปใช้รหัสของภารกิจถ้าไม่เลือกกลุ่มงาน
+        return;
+      }
+      const matched = this.meta.groups.find(g => g[0] === this.form.group);
+      if(matched && matched[2]) this.form.prefix = matched[2];
       
       // กรองหน่วยย่อยภายใต้กลุ่มงาน
       this.filteredUnits = this.meta.units.filter(u => u[1] === this.form.group);
@@ -131,28 +155,28 @@ function systemApp() {
 
     handleUnitChange() {
       if(this.form.unit === "") {
-        this.handleGroupChange(); // ย้อนกลับมาใช้ Prefix กลุ่มหลักหากไม่ได้เลือกหน่วยย่อย
+        this.handleGroupChange(); // กลับไปใช้รหัสของกลุ่มงานถ้าไม่เลือกหน่วยงาน
         return;
       }
       const matched = this.meta.units.find(u => u[0] === this.form.unit);
-      if(matched && matched[2]) {
-        this.form.prefix = matched[2]; // เปลี่ยนโครงสร้างเป็น Prefix รหัสเฉพาะหน่วยงานย่อย
-      }
+      if(matched && matched[2]) this.form.prefix = matched[2]; 
     },
 
-    // แสดง Pop Up ตรวจสอบเงื่อนไขการจองก่อนบันทึก
+    // 🌟 แสดง Pop Up ตรวจสอบเงื่อนไขการจองก่อนบันทึก (โชว์ข้อมูล 3 ระดับ)
     openConfirmation() {
-      const activeUnitDisplay = this.form.unit || 'ออกในนามกลุ่มงานหลัก';
+      const activeGroupDisplay = this.form.group || '-';
+      const activeUnitDisplay = this.form.unit || '-';
       
       Swal.fire({
         title: '📝 ยืนยันการจองเลขเอกสาร',
         html: `
           <div class="text-start fs-6 p-3 bg-light border rounded">
             <p class="mb-1"><b>ประเภทหนังสือ:</b> ${this.form.documentType}</p>
-            <p class="mb-1"><b>กลุ่มงาน:</b> ${this.form.group}</p>
+            <p class="mb-1"><b>ภารกิจ:</b> ${this.form.mission}</p>
+            <p class="mb-1"><b>กลุ่มงาน:</b> ${activeGroupDisplay}</p>
             <p class="mb-1"><b>หน่วยงาน:</b> ${activeUnitDisplay}</p>
-            <p class="mb-1 text-primary"><b>เรื่อง:</b> ${this.form.subject}</p>
-            <p class="mb-0"><b>ลงวันที่ในหนังสือ:</b> ${this.form.documentDate}</p>
+            <p class="mb-1 text-primary mt-2 border-top pt-2"><b>เรื่อง:</b> ${this.form.subject}</p>
+            <p class="mb-0"><b>ลงวันที่ในหนังสือ:</b> ${this.formatThaiDateFull(this.form.documentDate)}</p>
           </div>
         `,
         icon: 'info',
@@ -168,7 +192,7 @@ function systemApp() {
       });
     },
 
-    // ส่งข้อมูลลงฐานและแสดงผลลัพธ์เลขหนังสือ
+    // 🌟 ส่งข้อมูลลงฐานและแสดงผลลัพธ์เลขหนังสือ (เพิ่มบรรทัดแสดงภารกิจ)
     async executeBooking() {
       this.loading = true;
       try {
@@ -187,13 +211,14 @@ function systemApp() {
             html: `
               <div class="text-start p-3 bg-light border rounded" style="font-size: 0.95rem;">
                 <p class="mb-1"><b>ประเภท:</b> ${res.documentType}</p>
-                <p class="mb-1"><b>หน่วยงาน:</b> ${res.unit}</p>
-                <p class="mb-1"><b>กลุ่มงาน:</b> ${res.group}</p>
-                <p class="mb-1"><b>เรื่อง:</b> ${this.form.subject}</p>
+                <p class="mb-1"><b>ภารกิจ:</b> ${res.mission}</p>
+                <p class="mb-1"><b>กลุ่มงาน:</b> ${res.group || 'ออกในนามภารกิจ'}</p>
+                <p class="mb-1"><b>หน่วยงาน:</b> ${res.unit || '-'}</p>
+                <p class="mb-1 text-primary mt-2 border-top pt-2"><b>เรื่อง:</b> ${this.form.subject}</p>
                 <hr class="my-2">
                 <p class="mb-1 text-center fs-5 text-success fw-bold">เลขที่หนังสือของคุณคือ</p>
                 <p class="text-center fs-3 fw-bold text-dark font-monospace mb-2">${res.documentNumber}</p>
-                <p class="mb-0 text-center text-muted">ลงวันที่ ${res.documentDate}</p>
+                <p class="mb-0 text-center text-muted">ลงวันที่ ${this.formatThaiDateFull(res.documentDate)}</p>
               </div>
             `,
             icon: 'success',
@@ -224,7 +249,8 @@ function systemApp() {
         const matchesType = !this.filterType || r.type === this.filterType;
         const matchesUnit = !this.filterUnit || 
           (r.unit && r.unit.toLowerCase().includes(this.filterUnit.toLowerCase())) ||
-          (r.group && r.group.toLowerCase().includes(this.filterUnit.toLowerCase()));
+          (r.group && r.group.toLowerCase().includes(this.filterUnit.toLowerCase())) ||
+          (r.mission && r.mission.toLowerCase().includes(this.filterUnit.toLowerCase()));
           
         return matchesSearch && matchesType && matchesUnit;
       });
@@ -235,7 +261,7 @@ function systemApp() {
       const ws = XLSX.utils.json_to_sheet(this.filteredRecords);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "RegisterRecords");
-      XLSX.writeFile(wb, "ทะเบียนจองเลขเอกสาร_กลุ่มงานการพยาบาล.xlsx");
+      XLSX.writeFile(wb, "ทะเบียนจองเลขเอกสาร.xlsx");
     },
 
     exportPDF() {
