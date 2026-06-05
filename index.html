@@ -333,8 +333,18 @@
                              onkeydown="return false" 
                              onpaste="return false" 
                              style="cursor: pointer;">
-                      <div class="form-text text-danger" style="font-size: 0.8rem;">
-                        <i class="fa-solid fa-circle-exclamation"></i> กรุณากดเลือกจากไอคอนปฏิทินเท่านั้น
+                      
+                      <div class="form-text mt-1" style="font-size: 0.85rem;">
+                        
+                        <span x-show="!form.documentDate" class="text-danger">
+                          <i class="fa-solid fa-circle-exclamation"></i> กรุณากดเลือกจากไอคอนปฏิทินเท่านั้น
+                        </span>
+                        
+                        <span x-show="form.documentDate" class="text-success">
+                          <i class="fa-solid fa-calendar-check"></i> วันที่เลือก: 
+                          <strong x-text="formatThaiDateFull(form.documentDate)"></strong>
+                        </span>
+                        
                       </div>
                   </div>
 
