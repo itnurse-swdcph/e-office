@@ -31,23 +31,46 @@ function systemApp() {
     },
 
     // 🌟 ฟังก์ชันสำหรับแปลงวันที่ ISO (เช่น 2569-06-03T17:00...) เป็นวันที่ไทย
+    // 🌟 แก้ไขฟังก์ชันแปลงวันที่ในตารางให้แสดงเดือนแบบเต็ม และรองรับฟอร์แมต YYYY-MM-DD
     formatThaiDate(dateInput) {
       if (!dateInput) return '-';
       
+      // ถ้าข้อมูลเป็นข้อความภาษาไทยอยู่แล้ว (เช่น "6 มิถุนายน 2569" จาก DateSentThai) ให้ส่งค่ากลับไปแสดงผลทันที
+      if (typeof dateInput === 'string' && (dateInput.includes('คม') || dateInput.includes('ยน') || dateInput.includes('พันธ์'))) {
+        return dateInput;
+      }
+
       try {
+        // จัดการกรณีเป็นรูปแบบ YYYY-MM-DD (เช่น 2026-06-09 จาก DocumentDate) 
+        // ใช้การแยกข้อความ (Split) เพื่อป้องกันปัญหาเรื่อง Timezone ของเบราว์เซอร์ปัดเศษวัน
+        if (typeof dateInput === 'string' && dateInput.includes('-')) {
+          const cleanDate = dateInput.split('T')[0]; // ตัดส่วนพ่วงเวลาออกถ้ามี
+          const parts = cleanDate.split('-');
+          if (parts.length === 3) {
+            const year = parseInt(parts[0], 10);
+            const monthIndex = parseInt(parts[1], 10) - 1;
+            const day = parseInt(parts[2], 10);
+            
+            const monthsFull = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+            let thaiYear = year < 2500 ? year + 543 : year;
+            
+            return `${day} ${monthsFull[monthIndex]} ${thaiYear}`;
+          }
+        }
+
+        // กรณีเผื่อเลือกสำหรับข้อมูลประเภทอื่น (ปรับจาก month: 'short' เป็น month: 'long')
         const date = new Date(dateInput);
         if (isNaN(date.getTime())) return dateInput; 
         
         const day = date.getDate();
-        const monthShort = date.toLocaleDateString('th-TH', { month: 'short' });
+        const monthFull = date.toLocaleDateString('th-TH', { month: 'long' });
         let year = date.getFullYear();
         
-        // ตรวจสอบปี ค.ศ. แปลงเป็น พ.ศ.
         if (year < 2500) {
           year = year + 543;
         }
         
-        return `${day} ${monthShort} ${year}`;
+        return `${day} ${monthFull} ${year}`;
       } catch (e) {
         return dateInput;
       }
