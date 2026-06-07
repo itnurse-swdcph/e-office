@@ -89,8 +89,32 @@ function systemApp() {
     },
 
     async switchView(newView) {
+      // 🌟 ดักจับถ้ากำลังจะสลับไปหน้า "booking" (และไม่ได้อยู่ในหน้านี้อยู่แล้ว)
+      if (newView === 'booking' && this.view !== 'booking') {
+        await Swal.fire({
+          title: '🔔 แจ้งให้ทราบก่อนจอง',
+          html: `
+            <div class="text-start" style="line-height: 1.6;">
+              <p class="mb-2 text-dark fs-6">จองได้เฉพาะ <strong>หนังสือราชการภายในหน่วยงาน</strong> เท่านั้น</p>
+              <p class="mb-2 text-secondary" style="font-size: 0.9rem;">
+                <i class="fa-solid fa-circle-check text-success me-1"></i> เช่น บันทึกข้อความขออนุมัติ, การส่งหลักฐานเบิกเงิน พตส., การเรียนเชิญเป็นประธานเปิดงานภายใน เป็นต้น
+              </p>
+              <div class="alert alert-warning py-2 px-3 mt-3 mb-0 text-start" style="font-size: 0.9rem;">
+                <i class="fa-solid fa-lightbulb text-warning me-1"></i> <strong>จุดสังเกต:</strong> เป็นเอกสารที่ลงนามโดยหัวหน้าหน่วยงาน หรือ หัวหน้ากลุ่มงาน
+              </div>
+            </div>
+          `,
+          icon: 'info',
+          confirmButtonText: 'รับทราบ เข้าสู่หน้าจองเลข',
+          confirmButtonColor: '#2563eb',
+          allowOutsideClick: false // บังคับให้ต้องกดปุ่มรับทราบเท่านั้น ไม่สามารถคลิกพื้นที่ว่างเพื่อปิดได้
+        });
+      }
+
+      // ดำเนินการเปลี่ยนหน้าตามปกติ หลังจากกดรับทราบแล้ว
       this.view = newView;
       this.currentPage = 1; // รีเซ็ตหน้าทุกครั้งที่เปลี่ยนเมนู
+      
       if (newView === 'dashboard') {
         await this.loadDashboard();
         await this.loadRegister();
