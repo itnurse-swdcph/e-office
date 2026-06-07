@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>ระบบจองเลขเอกสารธุรการ โรงพยาบาลสมเด็จพระยุพราชสว่างแดนดิน</title>
+  <title>ระบบจองเลขหนังสือออก โรงพยาบาลสมเด็จพระยุพราชสว่างแดนดิน</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#1e3a8a">
   <link rel="manifest" href="manifest.json">
@@ -152,7 +152,7 @@
         </button>
         
         <div class="brand-text">
-          <h2 class="m-0 fw-bold text-primary brand-title">ระบบจองเลขเอกสารธุรการ</h2>
+          <h2 class="m-0 fw-bold text-primary brand-title">ระบบจองเลขหนังสือออก</h2>
           <p class="m-0 text-secondary brand-subtitle">
             โรงพยาบาลสมเด็จพระยุพราชสว่างแดนดิน
           </p>
@@ -165,7 +165,7 @@
           
           <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-4 bg-white p-3 rounded-3 shadow-sm border-start border-primary border-4 gap-3">
             <div>
-              <h5 class="m-0 fw-bold text-dark">ระบบสารบรรณและออกเลขหนังสืองานธุรการอิเล็กทรอนิกส์</h5>
+              <h5 class="m-0 fw-bold text-dark">ยินดีต้อนรับเข้าสู่ระบบจองเลขหนังสือออก</h5>
               <small class="text-muted">เลือกทำรายการด่วนเพื่อล็อกคิวออกเลขหนังสือของหน่วยงานได้ทันที</small>
             </div>
             <button @click="switchView('booking')" class="btn btn-primary px-4 py-2 fw-bold text-white shadow-sm flex-shrink-0">
@@ -173,109 +173,94 @@
             </button>
           </div>
 
-          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-5 g-3 mb-4">
-            
-            <div class="col">
-              <div class="metric-card bg-primary p-3 text-center h-100 shadow-sm border-0">
-                <div class="mb-2 mt-1">
-                  <span class="d-inline-flex align-items-center justify-content-center bg-white text-primary rounded-circle" style="width: 50px; height: 50px;">
-                    <i class="fa-solid fa-layer-group fa-lg"></i>
-                  </span>
-                </div>
-                <div class="text-white-50 small fw-medium">จำนวนหนังสือทั้งหมด</div>
-                <h3 class="fw-bold text-white mt-1 mb-0" x-text="stats.totalBooks">0</h3>
-              </div>
-            </div>
-
-            <div class="col">
-              <div class="metric-card bg-white p-3 text-center border-bottom border-info border-3 h-100">
-                <div class="mb-2 mt-1">
-                  <span class="d-inline-flex align-items-center justify-content-center bg-info bg-opacity-10 text-info rounded-circle" style="width: 50px; height: 50px;">
-                    <i class="fa-solid fa-file-signature fa-lg"></i>
-                  </span>
-                </div>
-                <div class="text-muted small fw-medium">บันทึกข้อความ</div>
-                <h3 class="fw-bold text-info mt-1 mb-0" x-text="stats.booksByType['บันทึกข้อความ'] || 0">0</h3>
-              </div>
-            </div>
-
-            <div class="col">
-              <div class="metric-card bg-white p-3 text-center border-bottom border-warning border-3 h-100">
-                <div class="mb-2 mt-1">
-                  <span class="d-inline-flex align-items-center justify-content-center bg-warning bg-opacity-10 text-warning rounded-circle" style="width: 50px; height: 50px;">
-                    <i class="fa-solid fa-stamp fa-lg"></i>
-                  </span>
-                </div>
-                <div class="text-muted small fw-medium">คำสั่ง</div>
-                <h3 class="fw-bold text-warning mt-1 mb-0" x-text="stats.booksByType['คำสั่ง'] || 0">0</h3>
-              </div>
-            </div>
-
-            <div class="col">
-              <div class="metric-card bg-white p-3 text-center border-bottom border-success border-3 h-100">
-                <div class="mb-2 mt-1">
-                  <span class="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 text-success rounded-circle" style="width: 50px; height: 50px;">
-                    <i class="fa-solid fa-paper-plane fa-lg"></i>
-                  </span>
-                </div>
-                <div class="text-muted small fw-medium">หนังสือออก</div>
-                <h3 class="fw-bold text-success mt-1 mb-0" x-text="stats.booksByType['หนังสือออก'] || 0">0</h3>
-              </div>
-            </div>
-
-            <div class="col">
-              <div class="metric-card bg-white p-3 text-center border-bottom border-danger border-3 h-100">
-                <div class="mb-2 mt-1">
-                  <span class="d-inline-flex align-items-center justify-content-center bg-danger bg-opacity-10 text-danger rounded-circle" style="width: 50px; height: 50px;">
-                    <i class="fa-solid fa-bullhorn fa-lg"></i>
-                  </span>
-                </div>
-                <div class="text-muted small fw-medium">หนังสือเวียน</div>
-                <h3 class="fw-bold text-danger mt-1 mb-0" x-text="stats.booksByType['หนังสือเวียน'] || 0">0</h3>
-              </div>
-            </div>
-
-          </div>
-
-          <div class="row g-4">
+          <div class="row g-4 mb-4">
             <div class="col-md-6">
-              <div class="metric-card bg-white p-4 h-100">
-                <h5 class="fw-bold mb-3 border-bottom pb-2 text-dark"><i class="fa-solid fa-hashtag text-success me-2"></i>เลขจองล่าสุดแต่ละประเภท</h5>
-                <ul class="list-group list-group-flush">
-                  <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2.5">
-                    <span class="fw-medium">บันทึกข้อความ</span>
-                    <span class="badge bg-info rounded-pill px-3 py-2 font-monospace fs-6" x-text="stats.latestBookings['บันทึกข้อความ'] || 'ไม่มีข้อมูล'"></span>
-                  </li>
-                  <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2.5">
-                    <span class="fw-medium">คำสั่ง</span>
-                    <span class="badge bg-warning text-dark rounded-pill px-3 py-2 font-monospace fs-6" x-text="stats.latestBookings['คำสั่ง'] || 'ไม่มีข้อมูล'"></span>
-                  </li>
-                  <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2.5">
-                    <span class="fw-medium">หนังสือออก</span>
-                    <span class="badge bg-success rounded-pill px-3 py-2 font-monospace fs-6" x-text="stats.latestBookings['หนังสือออก'] || 'ไม่มีข้อมูล'"></span>
-                  </li>
-                  <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2.5">
-                    <span class="fw-medium">หนังสือเวียน</span>
-                    <span class="badge bg-danger rounded-pill px-3 py-2 font-monospace fs-6" x-text="stats.latestBookings['หนังสือเวียน'] || 'ไม่มีข้อมูล'"></span>
-                  </li>
-                </ul>
+              <div class="metric-card bg-primary p-4 text-center h-100 shadow-sm border-0 d-flex flex-column justify-content-center">
+                <div class="mb-3">
+                  <span class="d-inline-flex align-items-center justify-content-center bg-white text-primary rounded-circle" style="width: 65px; height: 65px;">
+                    <i class="fa-solid fa-layer-group fa-2xl"></i>
+                  </span>
+                </div>
+                <div class="text-white-50 fw-medium fs-5">จำนวนเลขจองทั้งหมดในระบบ</div>
+                <h1 class="fw-bold text-white mt-2 mb-0" style="font-size: 4rem;" x-text="stats.totalBooks">0</h1>
               </div>
             </div>
 
             <div class="col-md-6">
-              <div class="metric-card bg-white p-4 h-100">
-                <h5 class="fw-bold mb-3 border-bottom pb-2 text-dark"><i class="fa-solid fa-medal text-danger me-2"></i>Top 5 ผู้จองสูงสุด</h5>
-                <ul class="list-group list-group-flush">
+              <div class="metric-card bg-white p-4 h-100 shadow-sm border-0">
+                <h5 class="fw-bold mb-3 border-bottom pb-2 text-dark">
+                  <i class="fa-solid fa-medal text-danger me-2"></i>5 อันดับหน่วยงานจองสูงสุด
+                </h5>
+                <ul class="list-group list-group-flush mt-2">
                   <template x-for="(user, i) in stats.topRequesters">
                     <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2.5">
-                      <span x-text="(i+1) + '. ' + user.name"></span>
-                      <span class="badge bg-primary rounded-pill px-3 py-2" x-text="user.count + ' ครั้ง'"></span>
+                      <span class="fs-6" x-text="(i+1) + '. ' + user.name"></span>
+                      <span class="badge bg-primary rounded-pill px-3 py-2 fs-6" x-text="user.count + ' ครั้ง'"></span>
                     </li>
                   </template>
                 </ul>
               </div>
             </div>
           </div>
+
+          <div class="metric-card bg-white p-4 shadow-sm border-0">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="fw-bold m-0"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>รายการจองล่าสุด</h5>
+              <button @click="switchView('register')" class="btn btn-sm btn-outline-primary px-3">ดูทะเบียนทั้งหมด</button>
+            </div>
+            
+            <div class="table-responsive">
+              <table class="table table-striped table-hover align-middle m-0" style="font-size:0.92rem;">
+                <thead class="table-dark-custom text-white">
+                  <tr>
+                    <th style="width: 20%">เลขที่หนังสือ / ลงวันที่</th>
+                    <th style="width: 35%">เรื่อง / ส่งถึง</th>
+                    <th style="width: 25%">ภารกิจ / หน่วยงาน</th>
+                    <th style="width: 20%">ผู้ปฏิบัติ / วันที่จอง</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template x-for="row in paginatedRecords" :key="row.docNum">
+                    <tr>
+                      <td>
+                        <span class="badge badge-doc-num font-monospace" x-text="row.docNum"></span>
+                        <div class="small text-muted mt-1" x-text="formatThaiDate(row.DocumentDate)"></div>
+                      </td>
+                      <td>
+                        <div class="fw-bold text-dark" x-text="row.subject"></div>
+                        <div class="small text-muted" x-text="'ส่งถึง: ' + row.recipient"></div>
+                      </td>
+                      <td>
+                        <div class="fw-semibold text-primary" x-text="row.unit && row.unit !== '-' ? row.unit : (row.group && row.group !== '-' ? row.group : row.mission)"></div>
+                        <div class="text-muted" style="font-size:0.75rem;" x-text="row.unit && row.unit !== '-' ? row.group : row.mission"></div>
+                      </td>
+                      <td>
+                        <div class="fw-medium text-dark" x-text="row.requester"></div>
+                        <div class="text-muted" style="font-size:0.78rem;" x-text="formatThaiDate(row.DateSentThai)"></div>
+                      </td>
+                    </tr>
+                  </template>
+                  <tr x-show="filteredRecords.length === 0">
+                    <td colspan="4" class="text-center text-muted py-4">ไม่พบข้อมูล</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-3" x-show="filteredRecords.length > 0">
+              <div class="small text-muted mb-3 mb-md-0">
+                แสดงรายการที่ <span class="fw-bold" x-text="((currentPage - 1) * pageSize) + 1"></span> 
+                ถึง <span class="fw-bold" x-text="Math.min(currentPage * pageSize, filteredRecords.length)"></span> 
+                จากทั้งหมด <span class="fw-bold" x-text="filteredRecords.length"></span> รายการ
+              </div>
+              <div class="btn-group shadow-sm">
+                <button class="btn btn-sm btn-outline-primary" @click="prevPage()" :disabled="currentPage === 1"><i class="fa-solid fa-angle-left me-1"></i> ก่อนหน้า</button>
+                <button class="btn btn-sm btn-primary" disabled><span class="fw-bold" x-text="currentPage + ' / ' + totalPages"></span></button>
+                <button class="btn btn-sm btn-outline-primary" @click="nextPage()" :disabled="currentPage === totalPages || totalPages === 0">ถัดไป <i class="fa-solid fa-angle-right ms-1"></i></button>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         <div x-show="view === 'booking'" class="fade-in row justify-content-center">
@@ -283,12 +268,13 @@
             <div class="metric-card bg-white p-4 p-md-5">
               <div class="text-center mb-4">
                 <img src="nurselogo.png" alt="Logo" class="form-logo mb-3">
-                <h4 class="fw-bold text-dark">จองเลขที่หนังสือและเอกสารธุรการ</h4>
-                <p class="text-muted small">ระบบออกเลขทะเบียนกลาง</p>
+                <h4 class="fw-bold text-dark">จองเลขหนังสือออก</h4>
+                <p class="text-muted small">ระบบจองเลขรันอัตโนมัติแยกตามภารกิจและหน่วยงาน</p>
               </div>
 
               <form @submit.prevent="openConfirmation">
                 <div class="row g-3">
+                  
                   <div class="col-md-4">
                     <label class="form-label fw-medium">ภารกิจ <span class="text-danger">*</span></label>
                     <select class="form-select" x-model="form.mission" @change="handleMissionChange" required>
@@ -302,7 +288,7 @@
                   <div class="col-md-4">
                     <label class="form-label fw-medium">กลุ่มงาน</label>
                     <select class="form-select" x-model="form.group" @change="handleGroupChange" :disabled="!form.mission">
-                      <option value="">-- ออกในนามภารกิจ (ไม่ระบุกลุ่มงาน) --</option>
+                      <option value="">-- ออกในนามภารกิจ --</option>
                       <template x-for="g in filteredGroups">
                         <option :value="g[0]" x-text="g[0]"></option>
                       </template>
@@ -312,19 +298,9 @@
                   <div class="col-md-4">
                     <label class="form-label fw-medium">หน่วยงาน</label>
                     <select class="form-select" x-model="form.unit" @change="handleUnitChange" :disabled="!form.group">
-                      <option value="">-- ออกในนามกลุ่มงาน (ไม่ระบุหน่วยงาน) --</option>
+                      <option value="">-- ออกในนามกลุ่มงาน --</option>
                       <template x-for="u in filteredUnits">
                         <option :value="u[0]" x-text="u[0]"></option>
-                      </template>
-                    </select>
-                  </div>
-
-                  <div class="col-md-6">
-                    <label class="form-label fw-medium">ประเภทหนังสือ <span class="text-danger">*</span></label>
-                    <select class="form-select" x-model="form.documentType" required>
-                      <option value="">-- เลือกประเภทหนังสือ --</option>
-                      <template x-for="t in meta.types">
-                        <option :value="t" x-text="t"></option>
                       </template>
                     </select>
                   </div>
@@ -334,7 +310,7 @@
                     <input type="text" class="form-control bg-light" :value="thaiDateNow" readonly disabled>
                   </div>
 
-                  <div class="col-12">
+                  <div class="col-md-6">
                     <label class="form-label fw-bold">ลงวันที่ในเอกสาร <span class="text-danger">*</span></label>
                       <input type="date" 
                              class="form-control" 
@@ -345,16 +321,13 @@
                              style="cursor: pointer;">
                       
                       <div class="form-text mt-1" style="font-size: 0.85rem;">
-                        
                         <span x-show="!form.documentDate" class="text-danger">
                           <i class="fa-solid fa-circle-exclamation"></i> กรุณากดเลือกจากไอคอนปฏิทินเท่านั้น
                         </span>
-                        
                         <span x-show="form.documentDate" class="text-success">
                           <i class="fa-solid fa-calendar-check"></i> วันที่เลือก: 
                           <strong x-text="formatThaiDateFull(form.documentDate)"></strong>
                         </span>
-                        
                       </div>
                   </div>
 
@@ -365,7 +338,7 @@
 
                   <div class="col-12">
                     <label class="form-label fw-medium">เรื่อง/ชื่องานหนังสือ <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" placeholder="พิมพ์ชื่อเรื่อง/ชื่องานหนังสือ" x-model="form.subject" required>
+                    <input type="text" class="form-control" placeholder="พิมพ์ชื่อเรื่องหนังสือออก" x-model="form.subject" required>
                   </div>
 
                   <div class="col-md-6">
@@ -398,17 +371,11 @@
 
           <div class="metric-card bg-white p-3 mb-4">
             <div class="row g-2">
-              <div class="col-md-4">
+              <div class="col-md-6">
                 <input type="text" class="form-control search-input" placeholder="🔍 ค้นหาคำค้นหลัก เช่น ชื่องาน, เลขที่, ผู้ขอ..." x-model="searchQuery">
               </div>
-              <div class="col-md-4">
-                <select class="form-select" x-model="filterType">
-                  <option value="">-- แสดงทุกประเภทหนังสือ --</option>
-                  <template x-for="t in meta.types"><option :value="t" x-text="t"></option></template>
-                </select>
-              </div>
-              <div class="col-md-4">
-                <input type="text" class="form-control" placeholder="🏢 พิมพ์ชื่อกรองหน่วยงาน..." x-model="filterUnit">
+              <div class="col-md-6">
+                <input type="text" class="form-control" placeholder="🏢 พิมพ์ชื่อกรองหน่วยงาน หรือภารกิจ..." x-model="filterUnit">
               </div>
             </div>
           </div>
@@ -417,22 +384,19 @@
             <table class="table table-striped table-hover align-middle m-0" style="font-size:0.92rem;" id="register-table-data">
               <thead class="table-dark-custom text-white">
                 <tr>
-                  <th style="width: 15%">เลขที่หนังสือ/ลงวันที่</th>
-                  <th style="width: 13%">ประเภท</th>
+                  <th style="width: 20%">เลขที่หนังสือ / ลงวันที่</th>
                   <th style="width: 35%">เรื่อง / ส่งถึง</th>
-                  <th style="width: 20%">หน่วยงาน / กลุ่มงาน</th>
-                  <th style="width: 17%">ผู้ปฏิบัติ / วันที่ลงทะเบียน</th>
+                  <th style="width: 25%">ภารกิจ / หน่วยงาน</th>
+                  <th style="width: 20%">ผู้ปฏิบัติ / วันที่ลงทะเบียน</th>
                 </tr>
               </thead>
               <tbody>
-                <template x-for="row in filteredRecords">
+                <template x-for="row in paginatedRecords" :key="row.docNum">
                   <tr>
                     <td>
                       <span class="badge badge-doc-num font-monospace" x-text="row.docNum"></span>
                       <div class="small text-muted mt-1" x-text="formatThaiDate(row.DocumentDate)"></div>
                     </td>
-                    
-                    <td class="fw-medium text-secondary" x-text="row.type"></td>
                     
                     <td>
                       <div class="fw-bold text-dark" x-text="row.subject"></div>
@@ -440,8 +404,8 @@
                     </td>
                     
                     <td>
-                      <div class="fw-semibold text-primary" x-text="row.unit"></div>
-                      <div class="text-muted" style="font-size:0.75rem;" x-text="row.group"></div>
+                      <div class="fw-semibold text-primary" x-text="row.unit && row.unit !== '-' ? row.unit : (row.group && row.group !== '-' ? row.group : row.mission)"></div>
+                      <div class="text-muted" style="font-size:0.75rem;" x-text="row.unit && row.unit !== '-' ? row.group : row.mission"></div>
                     </td>
                     
                     <td>
@@ -452,11 +416,25 @@
                 </template>
                 
                 <tr x-show="filteredRecords.length === 0">
-                  <td colspan="5" class="text-center text-muted py-5">ไม่พบข้อมูลทะเบียนจองในฐานข้อมูลตามตัวกรองที่ระบุ</td>
+                  <td colspan="4" class="text-center text-muted py-5">ไม่พบข้อมูลทะเบียนจองในฐานข้อมูลตามตัวกรองที่ระบุ</td>
                 </tr>
               </tbody>
             </table>
           </div>
+
+          <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4" x-show="filteredRecords.length > 0">
+            <div class="small text-muted mb-3 mb-md-0">
+              แสดงรายการที่ <span class="fw-bold" x-text="((currentPage - 1) * pageSize) + 1"></span> 
+              ถึง <span class="fw-bold" x-text="Math.min(currentPage * pageSize, filteredRecords.length)"></span> 
+              จากทั้งหมด <span class="fw-bold" x-text="filteredRecords.length"></span> รายการ
+            </div>
+            <div class="btn-group shadow-sm">
+              <button class="btn btn-outline-primary" @click="prevPage()" :disabled="currentPage === 1"><i class="fa-solid fa-angle-left me-1"></i> ก่อนหน้า</button>
+              <button class="btn btn-primary" disabled><span class="fw-bold" x-text="currentPage + ' / ' + totalPages"></span></button>
+              <button class="btn btn-outline-primary" @click="nextPage()" :disabled="currentPage === totalPages || totalPages === 0">ถัดไป <i class="fa-solid fa-angle-right ms-1"></i></button>
+            </div>
+          </div>
+
         </div>
 
       </div>
