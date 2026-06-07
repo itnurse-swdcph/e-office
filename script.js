@@ -1,5 +1,4 @@
 // ************************************************************************
-// ⚠️ เปลี่ยนเป็น URL เว็บแอปพลิเคชันที่ได้ทำการคัดลอกมาจาก Google Apps Script
 const API_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwYNit-n6pgzD8B2XmSJJx3Ey_cdJnYSMKI3UXxVjN9jAF3-vlAwyNL-jxIjgRZLgMYog/exec';
 // ************************************************************************
 
@@ -7,93 +6,76 @@ function systemApp() {
   return {
     view: 'dashboard',
     loading: true,
-    sidebarCollapse: false, // ตัวแปรควบคุมสถานะ ย่อ-ขยาย แถบเมนูด้านข้าง
+    sidebarCollapse: false, 
     thaiDateNow: '',
     searchQuery: '',
-    filterType: '',
     filterUnit: '',
     
-    // โครงสร้างข้อมูล 3 ระดับ (ภารกิจ -> กลุ่มงาน -> หน่วยงาน)
-    meta: { missions: [], groups: [], units: [], types: [] },
+    // 🌟 ระบบ Pagination
+    currentPage: 1,
+    pageSize: 10,
+    
+    meta: { missions: [], groups: [], units: [] },
     filteredGroups: [],
     filteredUnits: [],
     records: [],
-    stats: { totalBooks: 0, booksByType: {}, topRequesters: [], latestBookings: {} },
+    stats: { totalBooks: 0, topRequesters: [] },
     
-    // ฟอร์มข้อมูล (เพิ่ม mission เข้ามา)
-    form: { mission: '', group: '', unit: '', documentType: '', prefix: '', documentDate: '', recipient: '', subject: '', requester: '', remarks: '' },
+    // ตัด documentType ออกจาก Form
+    form: { mission: '', group: '', unit: '', prefix: '', documentDate: '', recipient: '', subject: '', requester: '', remarks: '' },
 
     async init() {
       this.generateThaiDate();
       await this.loadMeta();
+      await this.loadRegister(); // ดึงประวัติมาเลยเพื่อให้แดชบอร์ดโชว์ได้
       await this.loadDashboard();
       this.loading = false;
+      
+      // ดักจับเวลาพิมพ์ค้นหา ให้กลับไปหน้า 1
+      this.$watch('searchQuery', () => { this.currentPage = 1; });
+      this.$watch('filterUnit', () => { this.currentPage = 1; });
     },
 
-    // 🌟 ฟังก์ชันสำหรับแปลงวันที่ ISO (เช่น 2569-06-03T17:00...) เป็นวันที่ไทย
-    // 🌟 แก้ไขฟังก์ชันแปลงวันที่ในตารางให้แสดงเดือนแบบเต็ม และรองรับฟอร์แมต YYYY-MM-DD
     formatThaiDate(dateInput) {
       if (!dateInput) return '-';
-      
-      // ถ้าข้อมูลเป็นข้อความภาษาไทยอยู่แล้ว (เช่น "6 มิถุนายน 2569" จาก DateSentThai) ให้ส่งค่ากลับไปแสดงผลทันที
       if (typeof dateInput === 'string' && (dateInput.includes('คม') || dateInput.includes('ยน') || dateInput.includes('พันธ์'))) {
         return dateInput;
       }
-
       try {
-        // จัดการกรณีเป็นรูปแบบ YYYY-MM-DD (เช่น 2026-06-09 จาก DocumentDate) 
-        // ใช้การแยกข้อความ (Split) เพื่อป้องกันปัญหาเรื่อง Timezone ของเบราว์เซอร์ปัดเศษวัน
         if (typeof dateInput === 'string' && dateInput.includes('-')) {
-          const cleanDate = dateInput.split('T')[0]; // ตัดส่วนพ่วงเวลาออกถ้ามี
+          const cleanDate = dateInput.split('T')[0]; 
           const parts = cleanDate.split('-');
           if (parts.length === 3) {
             const year = parseInt(parts[0], 10);
             const monthIndex = parseInt(parts[1], 10) - 1;
             const day = parseInt(parts[2], 10);
-            
             const monthsFull = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
             let thaiYear = year < 2500 ? year + 543 : year;
-            
             return `${day} ${monthsFull[monthIndex]} ${thaiYear}`;
           }
         }
-
-        // กรณีเผื่อเลือกสำหรับข้อมูลประเภทอื่น (ปรับจาก month: 'short' เป็น month: 'long')
         const date = new Date(dateInput);
         if (isNaN(date.getTime())) return dateInput; 
-        
         const day = date.getDate();
         const monthFull = date.toLocaleDateString('th-TH', { month: 'long' });
         let year = date.getFullYear();
-        
-        if (year < 2500) {
-          year = year + 543;
-        }
-        
+        if (year < 2500) { year = year + 543; }
         return `${day} ${monthFull} ${year}`;
       } catch (e) {
         return dateInput;
       }
     },
 
-    // 🌟 ฟังก์ชันสำหรับแสดงตัวอย่างวันที่ในฟอร์ม (แสดงชื่อเดือนแบบเต็ม)
     formatThaiDateFull(dateInput) {
       if (!dateInput) return '';
-      
       try {
         const date = new Date(dateInput);
         if (isNaN(date.getTime())) return '';
-        
         const monthsFull = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
-        
         const day = date.getDate();
         const monthFull = monthsFull[date.getMonth()];
         let year = date.getFullYear();
-        
-        if (year < 2500) {
-          year = year + 543;
-        }
-        
+        if (year < 2500) { year = year + 543; }
         return `${day} ${monthFull} ${year}`;
       } catch (e) {
         return '';
@@ -108,8 +90,10 @@ function systemApp() {
 
     async switchView(newView) {
       this.view = newView;
+      this.currentPage = 1; // รีเซ็ตหน้าทุกครั้งที่เปลี่ยนเมนู
       if (newView === 'dashboard') {
         await this.loadDashboard();
+        await this.loadRegister();
       } else if (newView === 'register') {
         this.loading = true;
         await this.loadRegister();
@@ -121,12 +105,8 @@ function systemApp() {
       try {
         const response = await fetch(`${API_ENDPOINT}?action=getMeta`);
         const json = await response.json();
-        if(json.success) {
-          this.meta = json.data;
-        }
-      } catch (err) {
-        console.error("โหลด Meta ไม่สำเร็จ:", err);
-      }
+        if(json.success) this.meta = json.data;
+      } catch (err) { console.error(err); }
     },
 
     async loadDashboard() {
@@ -134,9 +114,7 @@ function systemApp() {
         const response = await fetch(`${API_ENDPOINT}?action=getDashboard`);
         const json = await response.json();
         if(json.success) this.stats = json.data;
-      } catch (err) {
-        console.error("โหลด Dashboard ล้มเหลว:", err);
-      }
+      } catch (err) { console.error(err); }
     },
 
     async loadRegister() {
@@ -144,20 +122,13 @@ function systemApp() {
         const response = await fetch(`${API_ENDPOINT}?action=getRegister`);
         const json = await response.json();
         if(json.success) this.records = json.data;
-      } catch (err) {
-        console.error("โหลดทะเบียนหนังสือล้มเหลว:", err);
-      }
+      } catch (err) { console.error(err); }
     },
 
-    // 🌟 ระบบจัดการเลือก 3 ระดับ (ภารกิจ -> กลุ่มงาน -> หน่วยงาน)
     handleMissionChange() {
       const matched = this.meta.missions.find(m => m[0] === this.form.mission);
       this.form.prefix = matched ? matched[1] : '';
-      
-      // กรองกลุ่มงานภายใต้ภารกิจ
       this.filteredGroups = this.meta.groups.filter(g => g[1] === this.form.mission);
-      
-      // รีเซ็ตค่าระดับล่างลงมา
       this.form.group = ''; 
       this.filteredUnits = [];
       this.form.unit = ''; 
@@ -165,27 +136,24 @@ function systemApp() {
 
     handleGroupChange() {
       if(this.form.group === "") {
-        this.handleMissionChange(); // กลับไปใช้รหัสของภารกิจถ้าไม่เลือกกลุ่มงาน
+        this.handleMissionChange(); 
         return;
       }
       const matched = this.meta.groups.find(g => g[0] === this.form.group);
       if(matched && matched[2]) this.form.prefix = matched[2];
-      
-      // กรองหน่วยย่อยภายใต้กลุ่มงาน
       this.filteredUnits = this.meta.units.filter(u => u[1] === this.form.group);
       this.form.unit = ''; 
     },
 
     handleUnitChange() {
       if(this.form.unit === "") {
-        this.handleGroupChange(); // กลับไปใช้รหัสของกลุ่มงานถ้าไม่เลือกหน่วยงาน
+        this.handleGroupChange(); 
         return;
       }
       const matched = this.meta.units.find(u => u[0] === this.form.unit);
       if(matched && matched[2]) this.form.prefix = matched[2]; 
     },
 
-    // 🌟 แสดง Pop Up ตรวจสอบเงื่อนไขการจองก่อนบันทึก (โชว์ข้อมูล 3 ระดับ)
     openConfirmation() {
       const activeGroupDisplay = this.form.group || '-';
       const activeUnitDisplay = this.form.unit || '-';
@@ -194,7 +162,6 @@ function systemApp() {
         title: '📝 ยืนยันการจองเลขเอกสาร',
         html: `
           <div class="text-start fs-6 p-3 bg-light border rounded">
-            <p class="mb-1"><b>ประเภทหนังสือ:</b> ${this.form.documentType}</p>
             <p class="mb-1"><b>ภารกิจ:</b> ${this.form.mission}</p>
             <p class="mb-1"><b>กลุ่มงาน:</b> ${activeGroupDisplay}</p>
             <p class="mb-1"><b>หน่วยงาน:</b> ${activeUnitDisplay}</p>
@@ -215,7 +182,6 @@ function systemApp() {
       });
     },
 
-    // 🌟 ส่งข้อมูลลงฐานและแสดงผลลัพธ์เลขหนังสือ (เพิ่มบรรทัดแสดงภารกิจ)
     async executeBooking() {
       this.loading = true;
       try {
@@ -233,7 +199,6 @@ function systemApp() {
             title: 'จองเลขที่หนังสือสำเร็จ!',
             html: `
               <div class="text-start p-3 bg-light border rounded" style="font-size: 0.95rem;">
-                <p class="mb-1"><b>ประเภท:</b> ${res.documentType}</p>
                 <p class="mb-1"><b>ภารกิจ:</b> ${res.mission}</p>
                 <p class="mb-1"><b>กลุ่มงาน:</b> ${res.group || 'ออกในนามภารกิจ'}</p>
                 <p class="mb-1"><b>หน่วยงาน:</b> ${res.unit || '-'}</p>
@@ -248,20 +213,20 @@ function systemApp() {
             confirmButtonText: 'ตกลง'
           });
           
-          // ล้างค่าฟอร์มเฉพาะส่วนแปรผันเพื่อความสะดวกในการรันงานเล่มถัดไป
           this.form.subject = '';
           this.form.recipient = '';
           this.form.remarks = '';
           this.switchView('dashboard');
         } else {
-          Swal.fire('เกิดข้อผิดพลาดจากระบบชีต', res.message, 'error');
+          Swal.fire('เกิดข้อผิดพลาด', res.message, 'error');
         }
       } catch (error) {
         this.loading = false;
-        Swal.fire('ระบบเครือข่ายขัดข้อง', error.toString(), 'error');
+        Swal.fire('ระบบขัดข้อง', error.toString(), 'error');
       }
     },
 
+    // 🌟 อัปเดต Filter (ลบ Type ออก)
     get filteredRecords() {
       return this.records.filter(r => {
         const matchesSearch = !this.searchQuery || 
@@ -269,22 +234,40 @@ function systemApp() {
           (r.subject && r.subject.toLowerCase().includes(this.searchQuery.toLowerCase())) ||
           (r.requester && r.requester.toLowerCase().includes(this.searchQuery.toLowerCase()));
           
-        const matchesType = !this.filterType || r.type === this.filterType;
         const matchesUnit = !this.filterUnit || 
           (r.unit && r.unit.toLowerCase().includes(this.filterUnit.toLowerCase())) ||
           (r.group && r.group.toLowerCase().includes(this.filterUnit.toLowerCase())) ||
           (r.mission && r.mission.toLowerCase().includes(this.filterUnit.toLowerCase()));
           
-        return matchesSearch && matchesType && matchesUnit;
+        return matchesSearch && matchesUnit;
       });
     },
 
+    // 🌟 ระบบ Pagination
+    get totalPages() {
+      return Math.ceil(this.filteredRecords.length / this.pageSize) || 1;
+    },
+    
+    get paginatedRecords() {
+      const start = (this.currentPage - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      return this.filteredRecords.slice(start, end);
+    },
+
+    nextPage() {
+      if (this.currentPage < this.totalPages) this.currentPage++;
+    },
+
+    prevPage() {
+      if (this.currentPage > 1) this.currentPage--;
+    },
+
     exportExcel() {
-      if(this.filteredRecords.length === 0) return Swal.fire('คำเตือน', 'ไม่มีข้อมูลในตารางให้ส่งออก', 'warning');
+      if(this.filteredRecords.length === 0) return Swal.fire('คำเตือน', 'ไม่มีข้อมูลในตาราง', 'warning');
       const ws = XLSX.utils.json_to_sheet(this.filteredRecords);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "RegisterRecords");
-      XLSX.writeFile(wb, "ทะเบียนจองเลขเอกสาร.xlsx");
+      XLSX.writeFile(wb, "ทะเบียนหนังสือออก.xlsx");
     },
 
     exportPDF() {
